@@ -7,6 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity  # Import cosine_similari
 import random  # Import random module for generating random numbers
 import time  # Import time module for time-related tasks
 import asyncio
+import webbrowser
 
 import gcal_scraping_quickstart as gcal;
 
@@ -31,6 +32,7 @@ class EventInitializer:
         events = self.service.events()
         event = events.insert(calendarId='primary', body=event_body).execute()
         print ('Event created: %s' % event.get('htmlLink'))
+        webbrowser.open(event.get('htmlLink'))
     
     def check_scopes(self):
         calendar_list_entry = self.service.calendarList().get(calendarId='primary').execute()
