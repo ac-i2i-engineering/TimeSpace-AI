@@ -13,7 +13,7 @@ jobs:
         python-version: '3.12'
     - name: Install dependencies
       run: |
-        pip install pylint pylint-google-style
+        pip install pylint
     - name: Run Pylint
       run: |
-        pylint --rcfile=.pylintrc your_module_name/
+        pylint --rcfile=./.pylintrc

@@ -12,6 +12,18 @@ method-naming-style=snake_case
 
 [MESSAGES CONTROL]
 disable=missing-docstring
+disable=C0114
+disable=C0115
+disable=C0116
 
 [TYPECHECK]
-docstring-rgx=^\"\"\"[^\"]"""
+docstring-rgx=^\"\"\"[^\"]+
+
+[DESIGN]
+max-args=5
+
+[IMPORTS]
+known-standard-library=flask,sqlalchemy,pandas,numpy
+
+[EXCEPTIONS]
+overgeneral-exceptions=Exception
