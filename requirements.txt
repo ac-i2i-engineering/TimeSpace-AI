@@ -7,6 +7,7 @@ azure-core==1.31.0
 azure-identity==1.19.0
 backcall==0.2.0
 cachetools==5.5.0
+cfgv==3.4.0
 chardet==5.2.0
 Deprecated==1.2.14
 diskcache==5.6.3
@@ -27,6 +28,7 @@ googleapis-common-protos==1.65.0
 grpcio==1.67.0
 grpcio-status==1.48.2
 httplib2==0.22.0
+identify==2.6.1
 ipython==8.12.3
 isodate==0.7.2
 jiter==0.6.1
@@ -36,6 +38,7 @@ lazy-object-proxy==1.10.0
 msal==1.31.0
 msal-extensions==1.2.0
 multidict==6.1.0
+nodeenv==1.9.1
 numpy==1.26.4
 oauthlib==3.2.2
 openai==1.52.0
@@ -51,6 +54,7 @@ pickleshare==0.7.5
 pipreqs==0.5.0
 portalocker==2.10.1
 prance==23.6.21.0
+pre_commit==4.0.1
 propcache==0.2.0
 proto-plus==1.24.0
 protobuf==3.20.3
