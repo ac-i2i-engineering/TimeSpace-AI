@@ -131,7 +131,7 @@ graph_builder.add_edge("process_response", END)
 
 graph = graph_builder.compile()
 
-output = graph.invoke({"messages": [("user", "Create a meeting with John at 2pm.")]})
+output = graph.invoke({"messages": [("user", "Create a meeting with Mark at 5pm.")]})
 
 
 pprint(output)
