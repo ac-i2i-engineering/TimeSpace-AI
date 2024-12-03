@@ -6,11 +6,6 @@ from langgraph.graph.message import add_messages
 
 # Define classes for use in tools and graph
 
-class State(TypedDict):
-   """State class for agent graph"""
-   messages: Annotated[list, add_messages]
-   questions: BaseModel
-
 class EventBody(BaseModel):
    """Event body for Google Calendar event"""
 
@@ -19,8 +14,18 @@ class EventBody(BaseModel):
    endTime: str = Field(..., description="DateTime in ISO 8601 format, endgin time of the event", example="2024-10-18T11:00:00")
    timeZone: str = Field(..., description="Time zone for the event", example="America/New_York")
 
-class EventLookupQuestions(BaseModel):
+
+class Questions(BaseModel):
+   """Base for questions models that will be used by agents"""
+   status: str = Field(..., description="Verbosely describe the status of the action. This field is NOT a question to be filled in like the others. It is a message to log the status of the action.")
+
+class EventLookupQuestions(Questions):
    """Questions that must be answered for the logical functionality of event lookup agent"""
 
    query: str = Field(..., description="What query should be used to list possible events? This should be a JSON with specific query parameters for the list_events tool.")
    selection: str = Field(..., description="Which of the possible events is the user referencing? This should be a JSON with the specific event details.")
+
+class State(TypedDict):
+   """State class for agent graph"""
+   messages: Annotated[list, add_messages]
+   questions: Questions

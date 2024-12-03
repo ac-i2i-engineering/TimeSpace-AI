@@ -8,6 +8,10 @@ from langgraph.prebuilt import ToolNode
 
 service = GoogleCalendarService()
 
+def parseJSON(json_str: str) -> object:
+    """Helper function to convert unpredictable AI JSON output to proper Python object"""
+    return json.loads(json_str.replace("\\n", "").replace("\n", "").replace("```json", "").replace("```", "").replace("\\", ""))
+
 @tool(args_schema=EventBody)
 def add_event(
     summary: str,
@@ -37,17 +41,14 @@ def add_event(
 @tool
 def list_events(query: str):
     """Method to list events based on query, a string of JSON with appropriate query params as detailed in system prompt."""
-    try:
-        params = json.loads(query.replace("\\n", "").replace("\n", "").replace("```json", "").replace("```", ""))
-        print("Parsed params: ", repr(params))
-        events_result = service.events().list(
-            **params
-        ).execute()
-        events = events_result.get("items", [])
-        return events
-    except Exception as e:
-        print(f"""{e}\nUnexpected response format: {query}""")
-        return []
+
+    params = parseJSON(query)
+    print("Parsed params: ", repr(params))
+    events_result = service.events().list(
+        **params
+    ).execute()
+    events = events_result.get("items", [])
+    return events
 
 tools = [add_event, list_events]
 
