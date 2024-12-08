@@ -1,6 +1,6 @@
 from datatypes import State
 from tools import tool_node
-from langgraph_quickstart import events_initializer
+from API.event_initializer import events_initializer
 from event_lookup import event_lookup_main, event_lookup_query, event_lookup_select
 
 from langgraph.graph import StateGraph, START, END

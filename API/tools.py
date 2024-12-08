@@ -19,24 +19,21 @@ def add_event(
     endTime: str,
     timeZone: str):
     """Method to insert event into Google Calendar using API."""
-    try:
-      # Construct event body from args (still unsure about this system, was designed for best AI understanding of args)
-      event_body = {
-         "summary": summary,
-         "start": {
-            "dateTime": startTime,
-            "timeZone": timeZone
-         },
-         "end": {
-            "dateTime": endTime,
-            "timeZone": timeZone
-         },
-      }
-      event = service.events().insert(calendarId='primary', body=event_body).execute()  # Insert event
-      #webbrowser.open(event.get('htmlLink')) # Open event in Google Calendar UI
-      return event
-    except Exception as e:
-        print(f"""{e}\nUnexpected input format: {event_body}""")
+    # Construct event body from args (still unsure about this system, was designed for best AI understanding of args)
+    event_body = {
+        "summary": summary,
+        "start": {
+        "dateTime": startTime,
+        "timeZone": timeZone
+        },
+        "end": {
+        "dateTime": endTime,
+        "timeZone": timeZone
+        },
+    }
+    event = service.events().insert(calendarId='primary', body=event_body).execute()  # Insert event
+    #webbrowser.open(event.get('htmlLink')) # Open event in Google Calendar UI
+    return event
 
 @tool
 def list_events(query: str):
@@ -50,6 +47,32 @@ def list_events(query: str):
     events = events_result.get("items", [])
     return events
 
-tools = [add_event, list_events]
 
+
+@tool
+def update_event(event_body: str):
+    """Method to update an event based on an updated set of params, a string of JSON as detailed in system prompt."""
+
+    event_body = parseJSON(event_body)
+    event = service.events().update(calendarId='primary', eventId=event_body['id'], body=event_body).execute()
+    print('Event updated:', event_body)
+    return event
+    #webbrowser.open(event.get('htmlLink'))  # Open event in Google Calendar UI
+
+@tool
+def delete_event(event_id: str):
+    """Method to delete an event based on the event's ID string."""
+    event = service.events().delete(calendarId='primary', eventId=event_id).execute()
+    return event
+
+def print_stream(stream):
+    for s in stream:
+        message = s["messages"][-1]
+        if isinstance(message, tuple):
+            print(message)
+        else:
+            message.pretty_print()
+        print()
+
+tools = [add_event, list_events]
 tool_node = ToolNode(tools)

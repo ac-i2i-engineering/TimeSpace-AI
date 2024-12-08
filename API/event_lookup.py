@@ -1,5 +1,5 @@
 from datatypes import State, EventLookupQuestions
-from tools import list_events, tool_node
+from tools import list_events, tool_node, print_stream
 
 import os
 import datetime
@@ -42,13 +42,22 @@ def event_lookup_select(state: State):
    print("Select")
 
    output = llm.invoke(
-      [SystemMessage(content="You are an agent in charge of selecting the relevant event(s) from the selection provided by the result of the Tool call. Simply reproduce the JSON array string you are given, only including the objects corresponding to the event(s) that the user is 'referencing' in their query, which is found in the content of the HumanMessage in your State. If you cannot find the specified event(s), respond to the user's query detailing this. BE PRECISE ABOUT THIS. IF THE USER MENTIONS AN EVENT OR EVENTS WHICH DOES/DO NOT CORRESPOND TO ANY OF THE OPTIONS, RESPOND WITH A MESSAGE DETAILING THE ISSUE. THIS IS THE DEFAULT BEHAVIOR, i.e. most input possibilities should NOT map to any of the possible options. For example, if the user mentions an English assignment and they only have Math, TELL THEM THEY HAVE NO ENGLISH.")] + state["messages"]
+      [SystemMessage(content=select_instructions())] + state["messages"]
    )
    return {"messages": output}
    # Put human in loop at this step, perhaps "Can't find any" or "Not sure which one you're talking about."
 
+def select_instructions():
+   """Function to generate system instructions the select node"""
+
+   current_time = datetime.datetime.now().isoformat() 
+   user_timezone = pytz.timezone(pytz.country_timezones('US')[0])
+   return f"""You are an agent in charge of selecting the relevant event(s) from the selection provided by the result of the Tool call. Simply reproduce the JSON array string you are given, only including the objects corresponding to the event(s) that the user is 'referencing' in their query, which is found in the content of the HumanMessage in your State. If you cannot find the specified event(s), respond to the user's query detailing this. BE PRECISE ABOUT THIS. IF THE USER MENTIONS AN EVENT OR EVENTS WHICH DOES/DO NOT CORRESPOND TO ANY OF THE OPTIONS, RESPOND WITH A MESSAGE DETAILING THE ISSUE. THIS IS THE DEFAULT BEHAVIOR, i.e. most input possibilities should NOT map to any of the possible options. For example, if the user mentions an English assignment and they only have Math, tell them you couldn't find an English assignment.
+   For context, right now the time is {current_time} in {user_timezone} timezone."""
+
+
 def query_instructions():
-   """Function to generate system instructions for Gemini"""
+   """Function to generate system instructions for the query node"""
 
    current_time = datetime.datetime.now().isoformat() 
    user_timezone = pytz.timezone(pytz.country_timezones('US')[0])
@@ -107,15 +116,6 @@ graph = graph_builder.compile()
 def event_lookup(state: State):
    return graph.stream(state, stream_mode="values")
 
-
-def print_stream(stream):
-    for s in stream:
-        message = s["messages"][-1]
-        if isinstance(message, tuple):
-            print(message)
-        else:
-            message.pretty_print()
-        print()
 
 def main():
    print_stream(event_lookup({"messages": [("user", "Reschedule my Math study time")], "questions": None}))
