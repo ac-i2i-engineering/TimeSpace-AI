@@ -24,7 +24,7 @@ class Graph(Agent):
 
         # Define LLM for automation agents (low temperature)
         llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash", 
+            model="gemini-2.0-flash", 
             google_api_key=GOOGLE_API_KEY,
             temperature=0.3
         )
@@ -41,7 +41,7 @@ class Graph(Agent):
         
         # Define LLM for user-facing agent (high temperature)
         llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
+            model="gemini-2.0-flash",
             google_api_key=GOOGLE_API_KEY,
         )
         # Initialize Indigo

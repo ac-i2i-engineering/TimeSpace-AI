@@ -39,14 +39,14 @@ async def stream_graph_output(message: str, thread_id: str):
       )
       messages = chunk[node_name]["messages"] if "messages" in chunk[node_name] else ""
       message = messages if not isinstance(messages, list) else messages[-1]
-      message.pretty_print() if not isinstance(message, (tuple, str)) else message
+      output = message.content if not isinstance(message, (tuple, str)) else message
       
-      yield f"""data: {message}\n\n"""  # Format as Server-Sent Events (SSE)
+      yield f"""data: {output}\n\n"""  # Format as Server-Sent Events (SSE)
 
 # API endpoint to stream output
 @app.get("/stream")
 async def stream(
    thread_id: str = Query("1", title="Thread ID"), 
-   message: str = Query("Onboard", title="User message")
+   message: str = Query("Hello!", title="User message")
 ):
    return StreamingResponse(stream_graph_output(message, thread_id), media_type="text/event-stream")

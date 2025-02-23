@@ -115,9 +115,10 @@ def print_stream(stream):
         print(
             f"\n---------- Update from {node_name} node in {format_namespace(namespace)} ---------\n"
         )
-        messages = chunk[node_name]["messages"]
+        messages = chunk[node_name]["messages"] if "messages" in chunk[node_name] else ""
         message = messages if not isinstance(messages, list) else messages[-1]
-        message.pretty_print() if not isinstance(message, tuple) else print(message)
+        message.pretty_print() if not isinstance(message, (tuple, str)) else message
+        
         print()
         
 
