@@ -5,9 +5,9 @@
    font-weight: 400;
 
    color-scheme: light dark;
-   background-color: rgb(15, 16, 23);
-   /*  background-image: linear-gradient(0deg, rgba(163, 188, 228, 0.6), rgba(108, 116, 142, 0.6), rgba(183, 186, 252, 0.6)); */
-   background-image: linear-gradient(0deg, rgba(48, 117, 227, 0.2), rgba(108, 116, 142, 0.1), rgba(111, 118, 246, 0.2));
+   /* background-color: rgb(35, 36, 39); */
+   background-image: linear-gradient(0deg, rgba(163, 188, 228, 0.7), rgba(108, 116, 142, 0.9) 65%, rgba(183, 186, 252, 0.7));
+   /* background-image: linear-gradient(0deg, rgba(48, 117, 227, 0.3), rgba(111, 118, 246, 0.3)); */
 
    font-synthesis: none;
    text-rendering: optimizeLegibility;
@@ -38,11 +38,11 @@ body {
 }
 
 h1 {
-   font-size: 3rem;
+   font-size: 2.5rem;
    line-height: 1.1;
-   color: rgb(230, 224, 204);
-   text-shadow: 0 0 5px rgb(181, 174, 156);
-   font-weight: 300;
+   color: rgb(251, 240, 232);
+   /* text-shadow: 0 0 5px rgba(181, 174, 156, 0.826); */
+   /* font-weight: 300; */
 }
 
 button {

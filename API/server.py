@@ -47,6 +47,6 @@ async def stream_graph_output(message: str, thread_id: str):
 @app.get("/stream")
 async def stream(
    thread_id: str = Query("1", title="Thread ID"), 
-   message: str = Query("Onboard", title="User message")
+   message: str = Query("Hello!", title="User message")
 ):
    return StreamingResponse(stream_graph_output(message, thread_id), media_type="text/event-stream")

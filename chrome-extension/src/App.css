@@ -16,12 +16,15 @@
 }
 
 .messages {
-   transition: flex 0.9s ease-in-out;
+   transition: flex 0.9s ease-in;
    display: flex;
    flex-direction: column;
-   padding: 0 1rem 10rem 5%;
+   padding: 2rem 1rem 10rem 5%;
    text-align: left;
-   justify-content: center;
+}
+
+.transition {
+   transition: all 0.9s ease-out;
 }
 
 .fade-in {

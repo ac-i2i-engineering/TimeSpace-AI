@@ -12,16 +12,21 @@ const queryClient = new QueryClient();
 const App = () => (
    <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
-         <h1 className="header">TIMESPACE</h1>
          <Chat />
       </ThemeProvider>
    </QueryClientProvider>
 );
 
 const Chat = () => {
-   const { data, error } = useSSE<string>("http://127.0.0.1:8000/stream");
+   const { data, error } = useSSE<string>("http://127.0.0.1:8000/stream?");
    return (
       <>
+         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <h1 className="header transition" style={{ fontSize: data ? "2rem" : "auto" }}>
+               TimeSpace
+            </h1>
+            <img src="timespace_logo.png" className="transition" style={{ height: data ? "3rem" : "4rem" }}></img>
+         </div>
          <div style={{ flex: data ? 1 : 0 }} className="messages">
             <span style={{ opacity: data ? 1 : 0, maxHeight: data ? "999px" : 0 }} className="fade-in">
                {data}
