@@ -15,7 +15,7 @@ class IndigoOutput(BaseModel):
    
    message: str = Field(..., description="Your message to the user. If helper agents are needed, this should be a status message like 'Adding to your calendar...'. If none are needed, this will be the final message to the user, so include all the information they need from internal messages.")
    helper_agent: Literal["event_initializer", "event_lookup", "event_editor", "none"] = Field(
-      ..., 
+      "none", 
       description="""Helper agents are how you, as Indigo, perform operations in the user's Google Calendar. If you want to execute an action, specify the appropriate agent here.
       - To put events in the user's calendar, put the 'event_initializer' agent.
       - To find specific events in the user's calendar, put the 'event_lookup' agent. (You will only need this for information not included in the context report you are given)
@@ -32,9 +32,10 @@ class IndigoOutput(BaseModel):
       Ex: 'Push my meeting with John tomorrow to 11am' -> event_editor
       Ex: 'Schedule me a gym session every week day at 11am' -> event_initializer
 
-      After helper agents have executed their operations, you will take the output and use it to inform your message to the user, and if no more helper agents are needed (i.e. the operation you wanted to perform has been performed), put "none" here.
+      After helper agents have executed their operations, you will take the output and use it to inform your message to the user.
+      IF NO MORE HELPER AGENTS ARE NEEDED (i.e. the operation you wanted to perform has been performed), DO NOT SPECIFY A HELPER AGENT.
+      IF YOU ARE ASKING FOLLOW UP QUESTIONS, DO NOT SPECIFY A HELPER AGENT.
 
-      If you are asking follow-up questions, put "none" here.
       """
    )
 

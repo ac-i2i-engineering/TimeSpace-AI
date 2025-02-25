@@ -29,7 +29,7 @@ class Contextualizer(Agent):
       # Invoke initialize node with `add_event` tool and system instructions attached to state messages
       events = list_events.run({"timeMin":TimeData.formatted_time(), "timeMax":TimeData.formatted_time(delta_days=10), "timeZone":str(TimeData.formatted_timezone())})
       
-      return {"context": events} # return new 'messages' from invokation of llm on current 'messages' stored in state. Then our add_messages function automically appends
+      return {"messages": AIMessage(content="Taking a look at your calendar..."), "context": events} # return new 'messages' from invokation of llm on current 'messages' stored in state. Then our add_messages function automically appends
    
    def summarize(self, state: State):
       """Node for event initializer agent to craft function calls to add events"""
@@ -38,7 +38,7 @@ class Contextualizer(Agent):
       message = self.llm.invoke(
          [SystemMessage(content=self.get_instructions()), HumanMessage(content=state["context"])]
       )
-      return {"context": message.content} # return new 'messages' from invokation of llm on current 'messages' stored in state. Then our add_messages function automically appends
+      return {"messages": AIMessage(content="Taking a look at your calendar..."), "context": message.content} # return new 'messages' from invokation of llm on current 'messages' stored in state. Then our add_messages function automically appends
    
 
    # Functions to generate time-aware instructions for the initialize node
