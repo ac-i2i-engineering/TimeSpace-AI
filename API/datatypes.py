@@ -1,5 +1,6 @@
-from typing import Annotated, List, Literal
+from typing import Annotated, List, Literal, Optional, Union
 from typing_extensions import TypedDict
+from gcal_service import GoogleCalendarService
 
 import datetime
 import tzlocal
@@ -7,7 +8,35 @@ import tzlocal
 from pydantic import BaseModel, Field, computed_field
 from langgraph.graph.message import add_messages
 from langchain_core.runnables import Runnable
-from langchain_core.messages import ToolMessage
+
+from langgraph.prebuilt import InjectedState
+
+
+
+
+class State(TypedDict):
+   """State class for agent graph"""
+
+   messages: Annotated[list, add_messages]
+   helper_agent: Literal["event_initializer", "event_lookup", "event_editor", "indigo"]
+   context: str
+   user_id: str
+
+class TimeData:
+   """Standardized functions for exposing time data to LLMs"""
+
+   formatted_time = lambda delta_days=0: (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=delta_days)).astimezone().isoformat()
+   formatted_timezone = lambda: tzlocal.get_localzone()
+
+class Agent(Runnable):
+   """Base class for agents, extends LangChain Runnable and routes method calls to internal graph object
+   Allows instances of agents to be added as nodes in a graph"""
+
+   graph: Runnable
+
+   invoke = lambda self, *args, **kwargs: self.graph.invoke(*args, **kwargs)
+
+   stream = lambda self, *args, **kwargs: self.graph.stream(*args, **kwargs)
 
 # Define classes for use in tools and graph
 class IndigoOutput(BaseModel):
@@ -35,7 +64,6 @@ class IndigoOutput(BaseModel):
       After helper agents have executed their operations, you will take the output and use it to inform your message to the user.
       IF NO MORE HELPER AGENTS ARE NEEDED (i.e. the operation you wanted to perform has been performed), DO NOT SPECIFY A HELPER AGENT.
       IF YOU ARE ASKING FOLLOW UP QUESTIONS, DO NOT SPECIFY A HELPER AGENT.
-
       """
    )
 
@@ -77,58 +105,8 @@ class ListQuery(BaseModel):
    calendarId: str = Field("primary", description="Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want to access the primary calendar of the currently logged in user, use the 'primary' keyword.")
    maxResults: int = Field(None, description="Maximum number of events returned on one result page. By default the value is 250 events. Optional.")
    #q: str =	Field(None, description="Free text search terms to find events. Optional.")
-   timeMin: str = Field(None, description="Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMax is set, timeMin must be smaller than timeMax.")
-   timeMax: str = Field(None, description="Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMin is set, timeMax must be greater than timeMin.")
-   timeZone: str = Field(None, description="Time zone used in the response. Include for our use case. The default is the time zone of the calendar.")
+   timeMin: str = Field(..., description="Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMax is set, timeMin must be smaller than timeMax.")
+   timeMax: str = Field(..., description="Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMin is set, timeMax must be greater than timeMin.")
+   timeZone: str = Field(..., description="Time zone used in the response. Include for our use case. The default is the time zone of the calendar.")
    singleEvents: bool = Field(None, description="Whether to expand recurring events into instances and only return single one-off events and instances of recurring events, but not the underlying recurring events themselves. Set 'True' when specifying maxResults.")
    orderBy: str = Field(None, description="The order of the events returned in the result. By default the events are sorted by start time in ascending order. Optional. Possible values are: 'startTime', 'updated'.")
-
-class SelectOutput(BaseModel):
-   """Output structure for Event Lookup agent"""
-
-   selection: List[str] = Field(..., description="List of event IDs selected from the candidate events")
-
-
-def add(left, right):
-   """Add messages together, removing duplicate Tool Messages in accordance with Gemini function call norms"""
-   
-   first_tool = None
-
-   if isinstance(right, list):
-      i = 0
-      while i < len(right): # Loop through the right side
-         if isinstance(right[i], ToolMessage): # Collapse all tool messages into the first one that appears
-            if first_tool is None:
-               first_tool = i
-            else:
-               right[first_tool].content += ", " + right[i].content
-               right[first_tool].name += ", " + right[i].name
-               right[first_tool].tool_call_id += ", " + right[i].tool_call_id
-               right.pop(i)
-               i -= 1
-         i += 1
-   return add_messages(left, right)
-   
-
-class State(TypedDict):
-   """State class for agent graph"""
-
-   messages: Annotated[list, add]
-   helper_agent: Literal["event_initializer", "event_lookup", "event_editor", "indigo"]
-   context: str
-
-class TimeData:
-   """Standardized functions for exposing time data to LLMs"""
-
-   formatted_time = lambda delta_days=0: (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=delta_days)).astimezone().isoformat()
-   formatted_timezone = lambda: tzlocal.get_localzone()
-
-class Agent(Runnable):
-   """Base class for agents, extends LangChain Runnable and routes method calls to internal graph object
-   Allows instances of agents to be added as nodes in a graph"""
-
-   graph: Runnable
-
-   invoke = lambda self, *args, **kwargs: self.graph.invoke(*args, **kwargs)
-
-   stream = lambda self, *args, **kwargs: self.graph.stream(*args, **kwargs)

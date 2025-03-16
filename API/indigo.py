@@ -3,6 +3,7 @@ from tools import print_state
 
 from langchain_core.messages import SystemMessage, AIMessage
 from langgraph.graph import StateGraph
+from langchain_google_genai.chat_models import ChatGoogleGenerativeAIError
 
 class Indigo(Agent):
     """Indigo. Serves the creation and implementation of the user's unique approach to their time."""
@@ -23,9 +24,14 @@ class Indigo(Agent):
         """Main node for Indigo"""
 
         # Invoke indigo node with state messages attached to a system message with Indigo's instructions, including context from Contextualizer agent.
-        output = self.llm.with_structured_output(IndigoOutput).invoke(
-            [SystemMessage(content=self.get_instructions(context=state["context"]))] + state["messages"]
-        )
+        try:
+            output = self.llm.with_structured_output(IndigoOutput).invoke(
+                [SystemMessage(content=self.get_instructions(context=state["context"]))] + state["messages"]
+            )
+        except ChatGoogleGenerativeAIError as e:
+            print(e, "PROBLEMATIC STATE:")
+            print([SystemMessage(content=self.get_instructions(context=state["context"]))] + state["messages"])
+            input()
 
         # Since Indigo node returns structured output, we have to construct a message from to output to update the state
         message = AIMessage(content=output.message)

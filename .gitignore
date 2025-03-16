@@ -1,5 +1,6 @@
 API/env
 API/.env
+chrome-extension/.env
 env
 __pycache__
 API/new_env
