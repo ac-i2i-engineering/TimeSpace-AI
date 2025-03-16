@@ -18,7 +18,16 @@ const App = () => (
 );
 
 const Chat = () => {
-   const { data, error } = useSSE<string>("http://127.0.0.1:8000/stream?");
+   const URL = "http://127.0.0.1:8000/stream?";
+
+   const { data, error, setQuery } = useSSE<string>(URL);
+
+   const messageToQuery = (message: string) => {
+      let params = new URLSearchParams();
+      params.append("message", message);
+      setQuery(URL + params);
+   };
+
    return (
       <>
          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -32,7 +41,7 @@ const Chat = () => {
                {data}
             </span>
          </div>
-         <Input />
+         <Input onSend={messageToQuery} />
       </>
    );
 };

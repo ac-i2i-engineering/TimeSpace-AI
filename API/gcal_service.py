@@ -12,19 +12,34 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 class GoogleCalendarService:
     """Wrapper class for building Google Calendar service"""
 
-    def __init__(self, creds=None):
-        self.creds = creds
-        self._service: Resource = None
-        self.authenticate()
+    def __init__(self, auth_token=None):
+        """Initializes the Google Calendar service object"""
+
+        self.creds = Credentials(auth_token) if auth_token else None # Initialize credentials from auth token if provided
+
+        self._service: Resource = None # Initialize service object
+        self.build_service() # Build service object
 
     def __getattr__(self, name):
         """Reroutes all other calls to Google service"""
         if self._service is None:
             raise RuntimeError("Service not initialized. Make sure authentication succeeded.")
-        return getattr(self._service, name)
+        return getattr(self._service, name) # Reroute calls to service object
+    
+    def build_service(self):
+        """Initializes the Google Calendar API service."""
 
-    def authenticate(self):
-        """Authenticates the user and initializes the Google Calendar API service."""
+        # If service object initialized without credentials, try to authenticate with local credentials
+        if not self.creds: self.local_auth()
+
+        # Instantiate service with credentials
+        try:
+            self._service = build("calendar", "v3", credentials=self.creds)
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+
+    def local_auth(self):
+        """Authenticates the user using local credentials"""
 
         # The file token.json stores the user's access and refresh tokens.
         if os.path.exists("token.json"):
@@ -41,12 +56,6 @@ class GoogleCalendarService:
             # Save credentials in "token.json" for future use
             with open("token.json", "w") as token:
                 token.write(self.creds.to_json())
-
-        # Instantiate service
-        try:
-            self._service = build("calendar", "v3", credentials=self.creds)
-        except HttpError as error:
-            print(f"An error occurred: {error}")
 
 # Testing
 if __name__ == "__main__":
